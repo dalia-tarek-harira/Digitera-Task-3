@@ -14,6 +14,8 @@ namespace Task_3.Domain.Models
 
         public int RecruiterId { get; set; }
 
+        public bool IsClosed { get; set; }
+
         public DateTime? ClosedAt { get; set; }
 
         public int? ClosedBy { get; set; }
