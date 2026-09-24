@@ -5,7 +5,7 @@ using Task_3.Application.DTOs;
 using Task_3.Application.Interfaces;
 using Task_3.Domain.Enums;
 using Task_3.Domain.Models;
-
+using Hangfire;
 namespace Task_3.Application.Services
 {
     public class ApplicationService
@@ -96,6 +96,9 @@ namespace Task_3.Application.Services
             application.CancelledAt = DateTime.UtcNow;
 
             await _applicationRepository.SaveChangesAsync();
+
+            BackgroundJob.Enqueue<INotificationService>(
+            x => x.NotifyCandidate(application.Id));
         }
     }
 }

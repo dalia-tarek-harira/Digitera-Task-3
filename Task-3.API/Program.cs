@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Hangfire;
 using Task_3.Application.Interfaces;
 using Task_3.Application.Services;
 using Task_3.Infrastructure.Data;
 using Task_3.Infrastructure.Identity;
 using Task_3.Infrastructure.Repositories;
+using Task_3.Infrastructure.Services;
 
 namespace Task_3.API
 {
@@ -30,6 +32,12 @@ namespace Task_3.API
                     builder.Configuration.GetConnectionString(
                         "DefaultConnection"));
             });
+
+            builder.Services.AddHangfire(config =>
+                config.UseSqlServerStorage(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddHangfireServer();
 
             // Identity
             builder.Services
@@ -92,6 +100,9 @@ namespace Task_3.API
             builder.Services.AddScoped<
                 IJobApplicationRepository,
                 JobApplicationRepository>();
+            builder.Services.AddScoped<
+                INotificationService,
+                EmailNotificationService>();
 
             // Current User
             builder.Services.AddScoped<
@@ -136,6 +147,8 @@ namespace Task_3.API
 
                 await IdentitySeeder.SeedRolesAsync(roleManager);
             }
+
+            app.UseHangfireDashboard("/hangfire");
 
             app.MapControllers();
 
